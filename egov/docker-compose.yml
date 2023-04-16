@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+  postgres:
+    image: postgres:14
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=pro-cargo
+      - POSTGRES_PASSWORD=change-in-production
+      - POSTGRES_DB=pro-cargo
+    networks:
+      - pro-cargo
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis_data:/data
+    networks:
+      - pro-cargo
+
+  pro-cargo:
+    image: pro-cargo:latest
+    build:
+      context: .
+    ports:
+      - ${HOST_PORT:-3000}:${PORT:-3000}
+    env_file:
+      - .env
+    networks:
+      - pro-cargo
+    
+volumes:
+  redis_data:
+  postgres:
+
+networks:
+  pro-cargo:
+    name: pro-cargo
+    driver: bridge
